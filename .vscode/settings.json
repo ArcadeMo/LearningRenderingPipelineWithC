@@ -1,0 +1,8 @@
+{
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.associations": {
+        "complex": "c",
+        "light.h": "c",
+        "upng.h": "c"
+    }
+}
