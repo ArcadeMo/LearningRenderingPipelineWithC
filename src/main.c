@@ -50,14 +50,17 @@ void setup(void) {
     // render_method = RENDER_WIRE;
     // cull_method = CULL_BACKFACE;
 
+    //Initialize the scene light direction
+    init_light(vec3_new(0, 0, 1));
+
     //Intialize the perspective projection matrix 
-    float aspectx = (float)get_window_width() / (float)get_window_height(); // aspect ratio
     float aspecty = (float)get_window_height() / (float)get_window_width(); // aspect ratio
+    float aspectx = (float)get_window_width() / (float)get_window_height(); // aspect ratio
     
     float fovy = M_PI / 3.0; // 180/3 radians on unit cricle or 60 degrees
     float fovx = atan(tan(fovy/2) * aspectx) * 2.0;
     float znear = 1.0;
-    float zfar = 25.0;
+    float zfar = 20.0;
     projection_matrix = mat4_perspective(fovy, aspecty, znear, zfar);
 
     //Intialize frustrum planes with a point and a unit normal
@@ -70,10 +73,10 @@ void setup(void) {
 
     //Loads the values in the mesh data structure
     // load_cube_mesh_data();
-    load_obj_file_data("./assets/f117.obj");
+    load_obj_file_data("./assets/f22.obj");
 
     //Load texture information from an external PNG file
-    load_png_texture_data("./assets/f117.png");
+    load_png_texture_data("./assets/f22.png");
 
     //Counter for each point used inside the next function
     // int point_counter = 0;
@@ -142,30 +145,30 @@ void process_input(void) {
                     set_cull_method(CULL_NONE);
                     break;
                 }
-                if (event.key.keysym.sym == SDLK_UP) {
-                    camera.position.y += 3.0 * delta_time;
-                    break;
-                }
-                if (event.key.keysym.sym == SDLK_DOWN) {
-                    camera.position.y -= 3.0 * delta_time;
-                    break;
-                }
-                if (event.key.keysym.sym == SDLK_a) {
-                    camera.yaw -= 1.0 * delta_time;
-                    break;
-                }
-                if (event.key.keysym.sym == SDLK_d) {
-                    camera.yaw += 1.0 * delta_time;
-                    break;
-                }
                 if (event.key.keysym.sym == SDLK_w) {
-                    camera.forward_velocity = vec3_mul(camera.direction, 5.0 * delta_time); //scaling and calculating current camera velocity
-                    camera.position = vec3_add(camera.position, camera.forward_velocity);
+                    rotate_camera_pitch(+3.0 * delta_time);
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_s) {
-                    camera.forward_velocity = vec3_mul(camera.direction, 5.0 * delta_time); //scaling and calculating current camera velocity
-                    camera.position = vec3_sub(camera.position, camera.forward_velocity);
+                    rotate_camera_pitch(-3.0 * delta_time);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_RIGHT) {
+                    rotate_camera_yaw(+1.0 * delta_time);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_LEFT) {
+                    rotate_camera_yaw(-1.0 * delta_time);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_UP) {
+                    update_camera_forward_velocity(vec3_mul(get_camera_direction(), 5.0 * delta_time)); //scaling and calculating current camera velocity
+                    update_camera_position(vec3_add(get_camera_position(), get_camera_forward_velocity()));
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_DOWN) {
+                    update_camera_forward_velocity(vec3_mul(get_camera_direction(), 5.0 * delta_time)); //scaling and calculating current camera velocity
+                    update_camera_position(vec3_sub(get_camera_position(), get_camera_forward_velocity()));
                     break;
                 }       
                 break;
@@ -233,18 +236,13 @@ void update(void) {
     // vec3 target = { 0, 0, 5.0 };
 
     //Initialize the target point at the positive z-axis
-    vec3 target = { 0, 0, 1 };
-    mat4 camera_yaw_rotation = mat_rotate_y(camera.yaw);
-    camera.direction = vec4_to_vec3(mat4_mul_vec4(camera_yaw_rotation, vec3_to_vec4(target)));
-
-    //Offset the camera position to the direction the camera is pointing at
-    target = vec3_add(camera.position, camera.direction);
+    vec3 target = get_camera_lookat_target();
 
     //Default up vector is normalized y
     vec3 up = { 0, 1, 0 };
 
     //Create the view matrix (it is in the update function because it needs to be updated frame by frame related to the target)
-    view_matrix = mat4_look_at(camera.position, target, up); 
+    view_matrix = mat4_look_at(get_camera_position(), target, up); 
 
     //Loop the triangle faces of the cube
     int num_faces = array_length(mesh.faces);
@@ -381,7 +379,7 @@ void update(void) {
             // float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0;
 
             //Calculate the shade intenstity using the dot product of the face normal and the inverse of the light ray
-            float light_intensity = -vec3_dot(normal, global_light.direction);
+            float light_intensity = -vec3_dot(normal, get_light_direction());
 
             //Calculate the triangle color based on the light angle
             uint32_t triangle_color = light_affected_intensity(mesh_face.color, light_intensity);

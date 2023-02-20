@@ -8,8 +8,8 @@ static float* z_buffer = NULL;
 static uint32_t* color_buffer = NULL;
 static SDL_Texture* color_buffer_texture = NULL;
 
-static int window_width;
-static int window_height;
+static int window_width = 640;
+static int window_height = 400;
 
 static int render_method = 0;
 static int cull_method = 0;
@@ -62,16 +62,16 @@ bool initialize_window(void){
     SDL_DisplayMode display_mode;
     SDL_GetCurrentDisplayMode(0, &display_mode); // display index which tells us what display its gettings, 0 in this case means the main display and a pointer to the SDL display mode we want to populate
     
-    window_width = display_mode.w; // to change the resolution but fit to full screen you can make window_width/height = number, the current code gives display full resolution 
-    window_height = display_mode.h;
+    int fullscreen_width = display_mode.w; // to change the resolution but fit to full screen you can make window_width/height = number, the current code gives display full resolution 
+    int fullscreen_height = display_mode.h; 
 
     //Create and SDL window
     window = SDL_CreateWindow(
         NULL, //first parameter is a border
         SDL_WINDOWPOS_CENTERED, // posX position from the top left of the screen
         SDL_WINDOWPOS_CENTERED, // posy position from the top left of the screen
-        window_width, //width
-        window_height, //height
+        fullscreen_width, // fullscreen_width, //width
+        fullscreen_height, // fullscreen_height, //height (for low pixels set these to fullscreen width and height)
         SDL_WINDOW_BORDERLESS //flags like shadows, borders, etc
     );
     if (!window) { //checking if the pointer made contact to create a window with the shit above
@@ -103,7 +103,7 @@ bool initialize_window(void){
 }
 
 void clear_z_buffer(void) {
-    for (int i = 0; i < window_height * window_height; i++) { //one for loop rather than nested below, 0(n)
+    for (int i = 0; i < window_width * window_height; i++) { //one for loop rather than nested below, 0(n)
         z_buffer[i] = 1.0;
     // for (int y = 0; y < window_height; y++) {
     //     for (int x = 0; x < window_width; x++) {
@@ -134,7 +134,7 @@ void render_color_buffer(void) {
 }
 
 void clear_color_buffer(uint32_t color) { // this function just changes the mem and doesn't actually render
-    for (int i = 0; i < window_height * window_height; i++) { //one for loop rather than nested below, 0(n)
+    for (int i = 0; i < window_width * window_height; i++) { //one for loop rather than nested below, 0(n)
         color_buffer[i] = color;
         // for (int x = 0; x < window_width; x++) {
         //         color_buffer[(window_width * y) + x] = color;
@@ -154,13 +154,13 @@ void clear_color_buffer(uint32_t color) { // this function just changes the mem 
 
 // a little more efficient by only checking for x and y being divisible by 10 once per row or column, rather than for every pixel in the row or column
 void draw_grid(void) {
-    for (int y = 0; y < window_height; y += 75) { //This loop iterates over the y coordinate of the pixels in the window, starting from 0 and incrementing by 100 for each iteration, until y is equal to or greater than window_height
-        for (int x = 0; x < window_width; x+= 25) { // or (int x = 0; x < window_width; x++): This inner loop iterates over the x coordinate of the pixels in the window, starting from 0 and incrementing by 1 for each iteration, until x is equal to or greater than window_width
+    for (int y = 0; y < window_height; y += 10) { //This loop iterates over the y coordinate of the pixels in the window, starting from 0 and incrementing by 100 for each iteration, until y is equal to or greater than window_height
+        for (int x = 0; x < window_width; x+= 10) { // or (int x = 0; x < window_width; x++): This inner loop iterates over the x coordinate of the pixels in the window, starting from 0 and incrementing by 1 for each iteration, until x is equal to or greater than window_width
             color_buffer[(window_width * y) + x] = 0xFFFFFF; //color_buffer[(window_width * y) + x] = 0xFFFFFF: For each x and y combination, this line sets the color of the corresponding pixel in the color_buffer to white (0xFFFFFF in hexadecimal).
         }
     }
-    for (int x = 0; x < window_width; x += 75) {
-        for (int y = 0; y < window_height; y+= 25) { // +=100 makes it into dots rather than grid
+    for (int x = 0; x < window_width; x += 10) {
+        for (int y = 0; y < window_height; y+= 10) { // +=100 makes it into dots rather than grid
             color_buffer[(window_width * y) + x] = 0xFFFFFF;
         }
     }

@@ -3,6 +3,7 @@
     "files.associations": {
         "complex": "c",
         "light.h": "c",
-        "upng.h": "c"
+        "upng.h": "c",
+        "__node_handle": "c"
     }
 }

@@ -1,9 +1,15 @@
 #include <stdint.h>
 #include "light.h"
 
-light global_light = {
-    .direction = { 0, 0, 1 }
-};
+static light global_light;
+
+void init_light(vec3 direction) {
+    global_light.direction = direction;
+}
+
+vec3 get_light_direction(void) {
+    return global_light.direction;
+}
 
 //Change the color based on the light intensity percentage
 uint32_t light_affected_intensity(uint32_t original_color, float percentage) {

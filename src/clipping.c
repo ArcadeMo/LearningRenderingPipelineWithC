@@ -121,8 +121,8 @@ void clip_polygon_against_plane(tPolygon* polygon, int plane) { //int because en
 
             //Use lerp formula to get the interpolated U and V texcoords
             tex2 interpolated_texcoord = {
-                .u = float_lerp(previous_texcoord -> u, current_texcoord -> u , t),
-                .v = float_lerp(previous_texcoord -> v, current_texcoord -> v , t),
+                .u = float_lerp(previous_texcoord -> u, current_texcoord -> u, t),
+                .v = float_lerp(previous_texcoord -> v, current_texcoord -> v, t),
             };
 
             //Insert the intersection point to the list of "inside vertices"
@@ -142,7 +142,6 @@ void clip_polygon_against_plane(tPolygon* polygon, int plane) { //int because en
         }
 
         previous_dot = current_dot;
-
         previous_vertex = current_vertex;
         previous_texcoord = current_texcoord;
         current_vertex++;
