@@ -22,6 +22,8 @@ typedef struct {
     // float avg_depth;
 } triangle;
 
+void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
+
 void draw_triangle_pixel (
     int x, int y, uint32_t color,
     vec4 point_a, vec4 point_b, vec4 point_c

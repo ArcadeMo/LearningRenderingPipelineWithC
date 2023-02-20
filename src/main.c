@@ -5,8 +5,6 @@
 #include <math.h>
 #include "array.h"
 #include "display.h"
-#include "draw.h"
-#include "colorBuffer.h"
 #include "vector.h"
 #include "mesh.h"
 #include "texture.h"
@@ -46,24 +44,15 @@ mat4 view_matrix;
 //No parameters gotta write void
 void setup(void) {
     //Intialize culling and render mode methods
-    render_method = RENDER_WIRE;
-    cull_method = CULL_BACKFACE;
+    set_render_method(RENDER_WIRE);
+    set_cull_method(CULL_BACKFACE);
 
-    //Allocate the memory to hold for the color buffer (bytes)
-    color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * window_width * window_height); //malloc is allocating memory in the heap expected in bytes, if successful it returns a pointer to the first position of the block
-    z_buffer = (float*)malloc(sizeof(float) * window_width * window_height);
-    //Creating a SDL texture to display the color buffer
-    color_buffer_texture = SDL_CreateTexture(
-        renderer, // created that renderer with SDL 
-        SDL_PIXELFORMAT_RGBA32, //ARGB8888, // the format of the pixel where its ARGB and its 8 bits each
-        SDL_TEXTUREACCESS_STREAMING, // contiously streaming this frame by frame, access mode given to that texture
-        window_width, // texture width and height
-        window_height
-    );
+    // render_method = RENDER_WIRE;
+    // cull_method = CULL_BACKFACE;
 
     //Intialize the perspective projection matrix 
-    float aspectx = (float)window_width / (float)window_height; // aspect ratio
-    float aspecty = (float)window_height / (float)window_width; // aspect ratio
+    float aspectx = (float)get_window_width() / (float)get_window_height(); // aspect ratio
+    float aspecty = (float)get_window_height() / (float)get_window_width(); // aspect ratio
     
     float fovy = M_PI / 3.0; // 180/3 radians on unit cricle or 60 degrees
     float fovx = atan(tan(fovy/2) * aspectx) * 2.0;
@@ -111,50 +100,76 @@ void setup(void) {
 
 void process_input(void) {
     SDL_Event event; 
-    SDL_PollEvent(&event); //passing the reference of the event we created above so we can check the event being created using the switch case below
+    while (SDL_PollEvent(&event)) { //passing the reference of the event we created above so we can check the event being created using the switch case below, the while makes sure we do not have any pending events
 
-    switch (event.type){
-        case SDL_QUIT: //when you click the X button on top then it SDL_QUIT is run
-            is_running = false;  //if SDL at any time quits then is_running becomes false 
-            break;
-        case SDL_KEYDOWN:
-            if (event.key.keysym.sym == SDLK_ESCAPE) //escape key pressed
-                is_running = false;
-            if (event.key.keysym.sym == SDLK_1)
-                render_method = RENDER_WIRE_VERTEX;
-            if (event.key.keysym.sym == SDLK_2)
-                render_method = RENDER_WIRE;
-            if (event.key.keysym.sym == SDLK_3)
-                render_method = RENDER_FILL_TRIANGLE;
-            if (event.key.keysym.sym == SDLK_4)
-                render_method = RENDER_FILL_TRIANGLE_WIRE;
-            if (event.key.keysym.sym == SDLK_5)
-                render_method = RENDER_TEXTURE;
-            if (event.key.keysym.sym == SDLK_6)
-                render_method = RENDER_TEXTURE_WIRE;
-            if (event.key.keysym.sym == SDLK_c)
-                cull_method = CULL_BACKFACE;
-            if (event.key.keysym.sym == SDLK_v)
-                cull_method = CULL_NONE;
-            if (event.key.keysym.sym == SDLK_UP)
-                camera.position.y += 3.0 * delta_time;
-            if (event.key.keysym.sym == SDLK_DOWN)
-                camera.position.y -= 3.0 * delta_time;
-            if (event.key.keysym.sym == SDLK_a)
-                camera.yaw -= 1.0 * delta_time;
-            if (event.key.keysym.sym == SDLK_d)
-                camera.yaw += 1.0 * delta_time;
-            if (event.key.keysym.sym == SDLK_w) {
-                camera.forward_velocity = vec3_mul(camera.direction, 5.0 * delta_time); //scaling and calculating current camera velocity
-                camera.position = vec3_add(camera.position, camera.forward_velocity);
-            }
-            if (event.key.keysym.sym == SDLK_s) {
-                camera.forward_velocity = vec3_mul(camera.direction, 5.0 * delta_time); //scaling and calculating current camera velocity
-                camera.position = vec3_sub(camera.position, camera.forward_velocity);
-            }       
-            break;
-        default:
-            break;
+        switch (event.type){
+            case SDL_QUIT: //when you click the X button on top then it SDL_QUIT is run
+                is_running = false;  //if SDL at any time quits then is_running becomes false 
+                break;
+            case SDL_KEYDOWN:
+                if (event.key.keysym.sym == SDLK_ESCAPE) { //escape key pressed
+                    is_running = false;
+                }
+                if (event.key.keysym.sym == SDLK_1) {
+                    set_render_method(RENDER_WIRE_VERTEX);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_2) {
+                    set_render_method(RENDER_WIRE);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_3) {
+                    set_render_method(RENDER_FILL_TRIANGLE);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_4) {
+                    set_render_method(RENDER_FILL_TRIANGLE_WIRE);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_5) {
+                    set_render_method(RENDER_TEXTURE);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_6) {
+                    set_render_method(RENDER_TEXTURE_WIRE);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_c) {
+                    set_cull_method(CULL_BACKFACE);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_v) {
+                    set_cull_method(CULL_NONE);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_UP) {
+                    camera.position.y += 3.0 * delta_time;
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_DOWN) {
+                    camera.position.y -= 3.0 * delta_time;
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_a) {
+                    camera.yaw -= 1.0 * delta_time;
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_d) {
+                    camera.yaw += 1.0 * delta_time;
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_w) {
+                    camera.forward_velocity = vec3_mul(camera.direction, 5.0 * delta_time); //scaling and calculating current camera velocity
+                    camera.position = vec3_add(camera.position, camera.forward_velocity);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_s) {
+                    camera.forward_velocity = vec3_mul(camera.direction, 5.0 * delta_time); //scaling and calculating current camera velocity
+                    camera.position = vec3_sub(camera.position, camera.forward_velocity);
+                    break;
+                }       
+                break;
+        }
     }
 }
 
@@ -309,7 +324,7 @@ void update(void) {
         float camera_alignment = vec3_dot(normal, camera_ray);
 
         //Bypass the triangles that are looking away from the camera
-        if (cull_method == CULL_BACKFACE) {
+        if (is_cull_backface()) {
             if (camera_alignment < 0) {
                 continue; //simply continues executing this block if the check passes
             } 
@@ -353,13 +368,13 @@ void update(void) {
                 projected_points[j].y *= -1;
 
                 //Scale into the view
-                projected_points[j].x *= (window_width / 2.0);
-                projected_points[j].y *= (window_height / 2.0);
+                projected_points[j].x *= (get_window_width() / 2.0);
+                projected_points[j].y *= (get_window_height() / 2.0);
 
 
                 //Translate the project vertex to the middle of the screen 
-                projected_points[j].x += (window_width / 2.0);
-                projected_points[j].y += (window_height / 2.0);
+                projected_points[j].x += (get_window_width() / 2.0);
+                projected_points[j].y += (get_window_height() / 2.0);
             }
             
             // //Calculate the average depth for each face based on the transformed vertices
@@ -429,7 +444,13 @@ void update(void) {
 }
 
 void render(void) {
-    SDL_RenderClear(renderer);
+    //Going to loop through all the positions in memory and set it to that color 
+    clear_color_buffer(0xFF000000); 
+
+    //Empty the z_buffer after rendering
+    clear_z_buffer();
+
+    // SDL_RenderClear(renderer); //naive way to clear the render
 
     draw_grid();
 
@@ -459,7 +480,7 @@ void render(void) {
         triangle triangle = triangles_to_render[i];
         
         //Draw filled triangles
-        if (render_method == RENDER_FILL_TRIANGLE || render_method == RENDER_FILL_TRIANGLE_WIRE) {
+        if (check_to_render_filled_triangle()) {
             draw_filled_triangle(
                 triangle.vertex[0].x, triangle.vertex[0].y, triangle.vertex[0].z, triangle.vertex[0].w, //vertex A
                 triangle.vertex[1].x, triangle.vertex[1].y, triangle.vertex[1].z, triangle.vertex[1].w, //vertex B
@@ -469,7 +490,7 @@ void render(void) {
         }
 
         //Draw textured triangle
-        if (render_method == RENDER_TEXTURE || render_method == RENDER_TEXTURE_WIRE) {
+        if (check_to_render_textured_triangle()) {
             draw_textured_triangle(
                 triangle.vertex[0].x, triangle.vertex[0].y, triangle.vertex[0].z, triangle.vertex[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v,
                 triangle.vertex[1].x, triangle.vertex[1].y, triangle.vertex[1].z, triangle.vertex[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v,
@@ -479,7 +500,7 @@ void render(void) {
         }
         
         //Draw the triangle wireframe
-        if (render_method == RENDER_WIRE || render_method == RENDER_WIRE_VERTEX || render_method == RENDER_FILL_TRIANGLE_WIRE || render_method == RENDER_TEXTURE_WIRE) {
+        if (check_to_render_wireframe()) {
             draw_triangle(
                 triangle.vertex[0].x, triangle.vertex[0].y,
                 triangle.vertex[1].x, triangle.vertex[1].y,
@@ -489,7 +510,7 @@ void render(void) {
         }
 
         //Draw triangle vertex points
-        if (render_method == RENDER_WIRE_VERTEX) {
+        if (check_to_render_wire_vertex()) {
             draw_rect(
                 triangle.vertex[0].x - 3, triangle.vertex[0].y - 3,
                 6,
@@ -522,20 +543,10 @@ void render(void) {
 
     //First render the color buffer
     render_color_buffer();
-
-    // going to loop through all the positions in memory and set it to that color 
-    clear_color_buffer(0xFF000000); 
-
-    //Empty the z_buffer after rendering
-    clear_z_buffer();
-
-    SDL_RenderPresent(renderer);
 }
 
 //Free resources
 void free_resources(void) {
-    free(color_buffer);
-    free(z_buffer);
     upng_free(png_texture);
     array_free(mesh.faces);
     array_free(mesh.vertices);

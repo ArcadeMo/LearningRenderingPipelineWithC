@@ -8,11 +8,24 @@
 #define FPS 60
 #define FRAME_TARGET_TIME (1000 / FPS) // how many milliseconds each of one of those frames should take to complete 60 fps  
 
+int get_window_width(void);
+int get_window_height(void);
+
+void set_render_method(int method);
+void set_cull_method(int method);
+
+bool is_cull_backface(void);
+
+bool check_to_render_filled_triangle(void);
+bool check_to_render_textured_triangle(void);
+bool check_to_render_wireframe(void);
+bool check_to_render_wire_vertex(void);
+
 //enums allow to create a list of options
 enum cull_method {
     CULL_NONE,
     CULL_BACKFACE
-} cull_method;
+} /*cull_method*/;
 
 enum render_method {
     RENDER_WIRE,
@@ -21,24 +34,35 @@ enum render_method {
     RENDER_FILL_TRIANGLE_WIRE,
     RENDER_TEXTURE,
     RENDER_TEXTURE_WIRE
-} render_method;
+} /*render_method*/;
 
-// extern makes it declare as global variables 
-extern SDL_Window* window;
-extern SDL_Renderer* renderer;
+// extern makes it declar   e as global variables 
+// extern SDL_Window* window;
+// extern SDL_Renderer* renderer;
 
 // extern uint32_t* color_buffer;
 // extern SDL_Texture* color_buffer_texture;
 
-extern int window_width;
-extern int window_height;
+// extern int window_width;
+// extern int window_height;
 
 bool initialize_window(void);
-
+void destroy_window(void);
 void clear_z_buffer(void);
 
-void destroy_window(void);
+void render_color_buffer(void);
+void clear_color_buffer(uint32_t color);
 
-extern float* z_buffer;
+// extern float* z_buffer;
+// extern uint32_t* color_buffer;
+// extern SDL_Texture* color_buffer_texture;
+
+void draw_grid(void);
+void draw_pixel(int x, int y, uint32_t color);
+void draw_line(int x0, int y0, int x1, int y1, uint32_t color);
+void draw_rect(int x, int y, int width, int height, uint32_t color);
+
+float get_zbuffer_at(int x, int y);
+void update_zbuffer_at(int x, int y, float value);
 
 #endif

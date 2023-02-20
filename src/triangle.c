@@ -1,8 +1,8 @@
 #include <math.h>
 #include <stdint.h>
+#include "display.h"
 #include "triangle.h"
 #include "swap.h"
-#include "draw.h"
 
 /*
 
@@ -110,6 +110,12 @@ void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint
 }
 */
 
+void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
+    draw_line(x0, y0, x1, y1, color);
+    draw_line(x1, y1, x2, y2, color);
+    draw_line(x2, y2, x0, y0, color);
+}
+
 //Function to draw the textured pixel at position x and y using interpolation
 void draw_triangle_pixel (
     int x, int y, uint32_t color,
@@ -135,12 +141,12 @@ void draw_triangle_pixel (
     interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
 
     //Only draw the pixel if the depth value is less than the one previously stored in the buffer
-    if(interpolated_reciprocal_w < z_buffer[(window_width * y) + x]) {
+    if(interpolated_reciprocal_w < get_zbuffer_at(x, y)) {
         //Fetching from the color to draw at the location x,y
         draw_pixel(x, y, color);
 
         //Update the z_buffer with the value of 1/w of the current pixel
-        z_buffer[(window_width * y) + x] = interpolated_reciprocal_w;
+        update_zbuffer_at(x, y, interpolated_reciprocal_w);
     }
 }
 
@@ -186,12 +192,12 @@ void draw_texel(
     interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
 
     //Only draw the pixel if the depth value is less than the one previously stored in the buffer
-    if(interpolated_reciprocal_w < z_buffer[(window_width * y) + x]) {
+    if(interpolated_reciprocal_w < get_zbuffer_at(x, y)) {
         //Fetching from the texture array the texture we want to draw at the location x,y
         draw_pixel(x, y, texture[(texture_width * tex_y) + tex_x]);
 
         //Update the z_buffer with the value of 1/w of the current pixel
-        z_buffer[(window_width * y) + x] = interpolated_reciprocal_w;
+        update_zbuffer_at(x, y, interpolated_reciprocal_w);
     }
 }
 
