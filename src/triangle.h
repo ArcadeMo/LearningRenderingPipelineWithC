@@ -51,4 +51,6 @@ void draw_textured_triangle (
     upng_t* texture
 );
 
+vec3 get_triangle_normal(vec4 vertices[3]);
+
 #endif 

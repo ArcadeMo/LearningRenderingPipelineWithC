@@ -454,3 +454,22 @@ void draw_textured_triangle (
         }
     }
 }
+
+vec3 get_triangle_normal(vec4 vertices[3]) {
+    //Backface culling test to check if the current face should be projected
+    vec3 vector_a = vec4_to_vec3(vertices[0]);  /*   A   */
+    vec3 vector_b = vec4_to_vec3(vertices[1]);  /*  / \  */
+    vec3 vector_c = vec4_to_vec3(vertices[2]);  /* C---B */
+
+    //Vector subtraction
+    vec3 vector_ab = vec3_sub(vector_b, vector_a);
+    vec3 vector_ac = vec3_sub(vector_c, vector_a);
+    vec3_normalize(&vector_ab);
+    vec3_normalize(&vector_ac);
+
+    //Compute face normal using cross product
+    vec3 normal = vec3_cross(vector_ab, vector_ac); //since this engine is using a left handed coord system this is the order of the cross product we use
+    vec3_normalize(&normal); //passing the reference of the address that is holding normal and that means whatever i do with the function, it changes the variable to the new outcome
+
+    return normal;
+}

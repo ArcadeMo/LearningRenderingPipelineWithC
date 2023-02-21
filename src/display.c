@@ -157,13 +157,13 @@ void clear_color_buffer(uint32_t color) { // this function just changes the mem 
 
 // a little more efficient by only checking for x and y being divisible by 10 once per row or column, rather than for every pixel in the row or column
 void draw_grid(void) {
-    for (int y = 0; y < window_height; y += 10) { //This loop iterates over the y coordinate of the pixels in the window, starting from 0 and incrementing by 100 for each iteration, until y is equal to or greater than window_height
-        for (int x = 0; x < window_width; x+= 10) { // or (int x = 0; x < window_width; x++): This inner loop iterates over the x coordinate of the pixels in the window, starting from 0 and incrementing by 1 for each iteration, until x is equal to or greater than window_width
+    for (int y = 0; y < window_height; y += 25) { //This loop iterates over the y coordinate of the pixels in the window, starting from 0 and incrementing by 100 for each iteration, until y is equal to or greater than window_height
+        for (int x = 0; x < window_width; x+= 25) { // or (int x = 0; x < window_width; x++): This inner loop iterates over the x coordinate of the pixels in the window, starting from 0 and incrementing by 1 for each iteration, until x is equal to or greater than window_width
             color_buffer[(window_width * y) + x] = 0xFFFFFF; //color_buffer[(window_width * y) + x] = 0xFFFFFF: For each x and y combination, this line sets the color of the corresponding pixel in the color_buffer to white (0xFFFFFF in hexadecimal).
         }
     }
-    for (int x = 0; x < window_width; x += 10) {
-        for (int y = 0; y < window_height; y+= 10) { // +=100 makes it into dots rather than grid
+    for (int x = 0; x < window_width; x += 25) {
+        for (int y = 0; y < window_height; y+= 25) { // +=100 makes it into dots rather than grid
             color_buffer[(window_width * y) + x] = 0xFFFFFF;
         }
     }
