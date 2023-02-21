@@ -8,8 +8,8 @@ static float* z_buffer = NULL;
 static uint32_t* color_buffer = NULL;
 static SDL_Texture* color_buffer_texture = NULL;
 
-static int window_width = 640;
-static int window_height = 400;
+static int window_width;
+static int window_height;
 
 static int render_method = 0;
 static int cull_method = 0;
@@ -62,16 +62,19 @@ bool initialize_window(void){
     SDL_DisplayMode display_mode;
     SDL_GetCurrentDisplayMode(0, &display_mode); // display index which tells us what display its gettings, 0 in this case means the main display and a pointer to the SDL display mode we want to populate
     
-    int fullscreen_width = display_mode.w; // to change the resolution but fit to full screen you can make window_width/height = number, the current code gives display full resolution 
-    int fullscreen_height = display_mode.h; 
+    window_width = display_mode.w; // to change the resolution but fit to full screen you can make window_width/height = number, the current code gives display full resolution 
+    window_height = display_mode.h; 
+
+    // int fullscreen_width = display_mode.w; // to change the resolution but fit to full screen you can make window_width/height = number, the current code gives display full resolution 
+    // int fullscreen_height = display_mode.h; 
 
     //Create and SDL window
     window = SDL_CreateWindow(
         NULL, //first parameter is a border
         SDL_WINDOWPOS_CENTERED, // posX position from the top left of the screen
         SDL_WINDOWPOS_CENTERED, // posy position from the top left of the screen
-        fullscreen_width, // fullscreen_width, //width
-        fullscreen_height, // fullscreen_height, //height (for low pixels set these to fullscreen width and height)
+        window_width, // fullscreen_width, //width
+        window_height, // fullscreen_height, //height (for low pixels set these to fullscreen width and height)
         SDL_WINDOW_BORDERLESS //flags like shadows, borders, etc
     );
     if (!window) { //checking if the pointer made contact to create a window with the shit above
